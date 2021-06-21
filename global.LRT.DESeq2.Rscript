@@ -1,0 +1,84 @@
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(1,2,3,4,17,18,19,20,9,10,11,12,25,26,27,28,13,14,15,16,29,30,31,32,57,58,59,60,64,65,66,67,68,69,70,71,72,73,74,75,61,62,63,76,77,33,34,35,40,41,42,43,44,45,46,47,48,49,50,51,36,37,38,39,52,53,54,55,56)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("EarlyAll", 8), rep("LateAll", 8), rep("WanderingAll",8), rep("MaleAll", 21), rep("FemaleAll", 24))))
+
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+
+dds_lrt = DESeq(ddsFullCountTable, test="LRT", reduced=~1)
+res_LRT = results(dds_lrt)
+sig_res_LRT = (res_LRT$padj < 0.05)
+sigLRT_genes <- rownames(sig_res_LRT)
+
+
+dds = DESeq(ddsFullCountTable)
+res = results(dds, test="Wald")
+               
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "EarlyAll"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "LateAll"])
+baseMeanC <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "WanderingAll"])
+baseMeanD <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "MaleAll"])
+baseMeanE <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "FemaleAll"])
+results = cbind(baseMeanA, baseMeanB, baseMeanC, baseMeanD, baseMeanE, as.data.frame(res_LRT), as.data.frame(res))
+
+#contrast=c("conditions")
+contrastA=c("conditions","EarlyAll","LateAll")
+contrastB=c("conditions","LateAll","WanderingAll")
+contrastC=c("conditions","WanderingAll","MaleAll")
+contrastD=c("conditions","MaleAll","FemaleAll")
+resA = results(dds, contrastA, test="Wald")
+resB = results(dds, contrastB, test="Wald")
+resC = results(dds, contrastC, test="Wald")
+resD = results(dds, contrastD, test="Wald")
+
+results = cbind(as.data.frame(results), as.data.frame(resA), as.data.frame(resB), as.data.frame(resC), as.data.frame(resD))
+write.table(results, file='77samples.genes.counts.matrix.LTR_andlifestageWald.DESeq2.DE_results', sep='\t', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.LTR_andlifestageWald.DESeq2.count_matrix', sep='\t', quote=FALSE)
+dev.off()
+
+contrastEW=c("conditions","EarlyAll","WanderingAll")
+contrastEM=c("conditions","EarlyAll","MaleAll")
+contrastEF=c("conditions","EarlyAll","FemaleAll")
+contrastLM=c("conditions","LateAll","MaleAll")
+contrastLF=c("conditions","LateAll","FemaleAll")
+contrastWF=c("conditions","WanderingAll","FemaleAll")
+resEW = results(dds, contrastEW)
+resEM = results(dds, contrastEM)
+resEF = results(dds, contrastEF)
+resLM = results(dds, contrastLM)
+resLF = results(dds, contrastLF)
+resWF = results(dds, contrastWF)
+
+
+#res = cbind(sampleA="EarlyAll", sampleB="LateAll", sampleC="WanderingAll", sampleD="MaleAll", sampleD="FemaleAll")
+#res = cbind(as.data.frame(res), as.data.frame(resEW), as.data.frame(resEM), as.data.frame(resEF), as.data.frame(resLM), as.data.frame(resLF), as.data.frame(resWF))
+
+#results = cbind(as.data.frame(results), as.data.frame(resA$padj), as.data.frame(resB$padj), as.data.frame(resC$padj), as.data.frame(resD$padj))
+#res = cbind(as.data.frame(results), as.data.frame(resEW$padj), as.data.frame(resEM$padj), as.data.frame(resEF$padj), as.data.frame(resLM$padj), as.data.frame(resLF$padj), as.data.frame(resWF$padj))
+
+#res_LRT$padj[is.na(res_LRT$padj)]  <- 1
+#results = as.data.frame(res_LRT[order(res_LRT$pvalue)])
+
+
+#pdf("77samples.genes.counts.matrix.LTR_andlifestageWald.DESeq2.DE_results.MA_n_Volcano.pdf")
+#plot_MA_and_Volcano(rownames(res), log2(results$baseMean+1), reslog2FoldChange) #, res$padj)
+source("ADHproject.rnaseq_plot_funcs.R")
+

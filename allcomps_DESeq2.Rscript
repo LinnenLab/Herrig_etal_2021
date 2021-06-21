@@ -1,0 +1,318 @@
+##Comparisons were originally created using modifications of run_DE_analysis.pl in the Trinity package
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(1,2,3,4,17,18,19,20,9,10,11,12,25,26,27,28)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("EarlyAll", 8), rep("LateAll", 8))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","EarlyAll","LateAll")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "EarlyAll"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "LateAll"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="EarlyAll", sampleB="LateAll", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.EarlyAll_vs_LateAll.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.EarlyAll_vs_LateAll.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.EarlyAll_vs_LateAll.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(17,18,19,20,25,26,27,28)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("EarlyHead", 4), rep("LateHead", 4))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","EarlyHead","LateHead")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "EarlyHead"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "LateHead"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="EarlyHead", sampleB="LateHead", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.EarlyHead_vs_LateHead.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.EarlyHead_vs_LateHead.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.EarlyHead_vs_LateHead.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(9,10,11,12,25,26,27,28,13,14,15,16,29,30,31,32)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("LateAll", 8), rep("WanderingAll", 8))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","LateAll","WanderingAll")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "LateAll"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "WanderingAll"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="LateAll", sampleB="WanderingAll", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.LateAll_vs_WanderingAll.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.LateAll_vs_WanderingAll.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.LateAll_vs_WanderingAll.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(25,26,27,28,29,30,31,32)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("LateHead", 4), rep("WanderingHead", 4))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","LateHead","WanderingHead")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "LateHead"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "WanderingHead"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="LateHead", sampleB="WanderingHead", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.LateHead_vs_WanderingHead.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.LateHead_vs_WanderingHead.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.LateHead_vs_WanderingHead.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(13,14,15,16,29,30,31,32,57,58,59,60,64,65,66,67,68,69,70,71,72,73,74,75,61,62,63,76,77)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("WanderingAll", 8), rep("MaleAll", 21))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","WanderingAll","MaleAll")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "WanderingAll"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "MaleAll"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="WanderingAll", sampleB="MaleAll", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.WanderingAll_vs_MaleAll.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.WanderingAll_vs_MaleAll.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.WanderingAll_vs_MaleAll.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(29,30,31,32,64,65,66,67)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("WanderingHead", 4), rep("MaleHead", 4))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","WanderingHead","MaleHead")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "WanderingHead"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "MaleHead"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="WanderingHead", sampleB="MaleHead", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.WanderingHead_vs_MaleHead.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.WanderingHead_vs_MaleHead.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.WanderingHead_vs_MaleHead.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(57,58,59,60,64,65,66,67,68,69,70,71,72,73,74,75,61,62,63,76,77,33,34,35,40,41,42,43,44,45,46,47,48,49,50,51,36,37,38,39,52,53,54,55,56)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("MaleAll", 21), rep("FemaleAll", 24))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","MaleAll","FemaleAll")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "MaleAll"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "FemaleAll"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="MaleAll", sampleB="FemaleAll", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.MaleAll_vs_FemaleAll.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.MaleAll_vs_FemaleAll.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.MaleAll_vs_FemaleAll.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(64,65,66,67,40,41,42,43)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("MaleHead", 4), rep("FemaleHead", 4))))
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+dds = DESeq(ddsFullCountTable)
+contrast=c("conditions","MaleHead","FemaleHead")
+res = results(dds, contrast)
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "MaleHead"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "FemaleHead"])
+res = cbind(baseMeanA, baseMeanB, as.data.frame(res))
+res = cbind(sampleA="MaleHead", sampleB="FemaleHead", as.data.frame(res))
+res$padj[is.na(res$padj)]  <- 1
+res = as.data.frame(res[order(res$pvalue),])
+write.table(res, file='77samples.genes.counts.matrix.MaleHead_vs_FemaleHead.DESeq2.DE_results', sep='	', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.MaleHead_vs_FemaleHead.DESeq2.count_matrix', sep='	', quote=FALSE)
+source("ADHproject.rnaseq_plot_funcs.R")
+pdf("77samples.genes.counts.matrix.MaleHead_vs_FemaleHead.DESeq2.DE_results.MA_n_Volcano.pdf")
+plot_MA_and_Volcano(rownames(res), log2(res$baseMean+1), res$log2FoldChange, res$padj)
+dev.off()
+
+
+
+
+

@@ -1,0 +1,44 @@
+if (! require(edgeR)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("edgeR")
+   library(edgeR)
+}
+
+if (! require(DESeq2)) {
+   source("https://bioconductor.org/biocLite.R")
+   biocLite("DESeq2")
+   library(DESeq2)
+}
+
+data = read.table("77samples.genes.counts.matrix", header=T, row.names=1, com='')
+col_ordering = c(64,65,66,67,40,41,42,43,57,58,59,60,32,33,34,35,61,62,63,36,37,38,39,68,69,70,71,44,45,46,47,72,73,74,75,48,49,50,51,76,77,52,53,54,55,56)
+rnaseqMatrix = data[,col_ordering]
+rnaseqMatrix = round(rnaseqMatrix)
+rnaseqMatrix = rnaseqMatrix[rowSums(cpm(rnaseqMatrix) > 1) >= 2,]
+conditions = data.frame(conditions=factor(c(rep("AdultHead",8), rep("Ant", 8), rep("Genitalia", 7), rep("Legs", 8), rep("Mouth", 8), rep("Thorax", 6))))
+
+
+rownames(conditions) = colnames(rnaseqMatrix)
+ddsFullCountTable <- DESeqDataSetFromMatrix(
+    countData = rnaseqMatrix,
+    colData = conditions,
+    design = ~ conditions)
+
+dds_lrt = DESeq(ddsFullCountTable, test="LRT", reduced=~1)
+res_LRT = results(dds_lrt)
+sig_res_LRT = (res_LRT$padj < 0.05)
+sigLRT_genes <- rownames(sig_res_LRT)
+
+dds = DESeq(ddsFullCountTable)
+               
+baseMeanA <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "Ant"])
+baseMeanB <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "Genitalia"])
+baseMeanC <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "AdultHead"])
+baseMeanD <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "Legs"])
+baseMeanE <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "Mouth"])
+baseMeanF <- rowMeans(counts(dds, normalized=TRUE)[,colData(dds)$conditions == "Thorax"])
+results = cbind(baseMeanA, baseMeanB, baseMeanC, baseMeanD, baseMeanE, as.data.frame(res_LRT))
+
+write.table(results, file='77samples.genes.counts.matrix.adultLTR_tissue.DESeq2.DE_results', sep='\t', quote=FALSE)
+write.table(rnaseqMatrix, file='77samples.genes.counts.matrix.adultLTR_tissued.DESeq2.count_matrix', sep='\t', quote=FALSE)
+q()
